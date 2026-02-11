@@ -1,0 +1,1574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Curiosity Cabin - Educational Toys for Curious Minds</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Quicksand:wght@400;500;600;700&display=swap');
+
+:root {
+  --primary: #2d7a5f;
+  --primary-dark: #1e5945;
+  --primary-light: #3d9a7a;
+  --accent: #f59e0b;
+  --accent-light: #fbbf24;
+  --bg: #f8fdf9;
+  --bg-alt: #e8f5ed;
+  --text: #1f2937;
+  --text-light: #6b7280;
+  --white: #ffffff;
+  --success: #10b981;
+  --danger: #ef4444;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+  --shadow-md: 0 4px 12px rgba(45,122,95,0.1);
+  --shadow-lg: 0 10px 30px rgba(45,122,95,0.15);
+  --shadow-xl: 0 20px 40px rgba(45,122,95,0.2);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body, html {
+  font-family: 'Poppins', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  overflow-x: hidden;
+  line-height: 1.6;
+}
+
+/* SPLASH SCREEN */
+#splash {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+#splash.fade-out {
+  opacity: 0;
+  transform: scale(1.05);
+}
+
+.splash-logo {
+  width: 100px;
+  height: 100px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+  margin-bottom: 24px;
+  animation: float 3s ease-in-out infinite;
+  backdrop-filter: blur(10px);
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-15px); }
+}
+
+#splash h1 {
+  font-size: 36px;
+  font-weight: 800;
+  margin-bottom: 8px;
+  letter-spacing: -0.5px;
+  font-family: 'Quicksand', sans-serif;
+}
+
+#splash p {
+  opacity: 0.9;
+  font-size: 16px;
+  font-weight: 400;
+}
+
+.loading-dots {
+  margin-top: 24px;
+  display: flex;
+  gap: 8px;
+}
+
+.loading-dots span {
+  width: 10px;
+  height: 10px;
+  background: white;
+  border-radius: 50%;
+  animation: bounce 1.4s infinite ease-in-out both;
+}
+
+.loading-dots span:nth-child(1) { animation-delay: -0.32s; }
+.loading-dots span:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes bounce {
+  0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
+  40% { transform: scale(1.2); opacity: 1; }
+}
+
+/* NAVIGATION */
+.navbar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--white);
+  padding: 12px 0 env(safe-area-inset-bottom);
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  border-top: 1px solid rgba(45,122,95,0.1);
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
+  z-index: 100;
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  padding: 8px 16px;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  position: relative;
+  color: var(--text-light);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.nav-item.active {
+  color: var(--primary);
+  background: var(--bg-alt);
+}
+
+.nav-item:hover {
+  transform: translateY(-2px);
+  color: var(--primary);
+}
+
+.nav-icon {
+  font-size: 22px;
+  transition: transform 0.3s ease;
+}
+
+.nav-item:hover .nav-icon {
+  transform: scale(1.1);
+}
+
+.badge {
+  position: absolute;
+  top: 4px;
+  right: 8px;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+  color: white;
+  padding: 2px 6px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 11px;
+  min-width: 18px;
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+}
+
+/* SCREENS */
+.screen {
+  display: none;
+  padding: 24px 20px 100px;
+  max-width: 600px;
+  margin: 0 auto;
+  min-height: 100vh;
+}
+
+.screen.active {
+  display: block;
+  animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* CARDS */
+.card {
+  background: var(--white);
+  border-radius: 20px;
+  padding: 28px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow-md);
+  transition: all 0.3s ease;
+  border: 1px solid rgba(45,122,95,0.08);
+}
+
+.card:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+
+.card h1, .card h2, .card h3 {
+  color: var(--primary-dark);
+  margin-bottom: 16px;
+  font-family: 'Quicksand', sans-serif;
+}
+
+.card h1 {
+  font-size: 28px;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.card h2 {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.card h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-top: 24px;
+  margin-bottom: 12px;
+}
+
+.card p {
+  color: var(--text-light);
+  line-height: 1.7;
+  margin-bottom: 12px;
+}
+
+/* FORM ELEMENTS */
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-label {
+  display: block;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+input, select, textarea {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 2px solid #e5e7eb;
+  font-size: 15px;
+  font-family: 'Poppins', sans-serif;
+  transition: all 0.3s ease;
+  background: var(--white);
+  color: var(--text);
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(45,122,95,0.1);
+  transform: translateY(-1px);
+}
+
+input::placeholder {
+  color: #9ca3af;
+}
+
+/* BUTTONS */
+.btn {
+  width: 100%;
+  padding: 16px 24px;
+  border: none;
+  border-radius: 14px;
+  font-weight: 700;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: 'Poppins', sans-serif;
+  text-align: center;
+  display: inline-block;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+  color: white;
+  box-shadow: var(--shadow-md);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-secondary {
+  background: var(--bg-alt);
+  color: var(--primary);
+  border: 2px solid var(--primary);
+}
+
+.btn-secondary:hover {
+  background: var(--primary);
+  color: white;
+}
+
+.btn-small {
+  padding: 10px 16px;
+  font-size: 14px;
+  border-radius: 10px;
+  width: auto;
+}
+
+/* CHECKBOX GROUP */
+.checkbox-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.checkbox-label {
+  position: relative;
+  cursor: pointer;
+}
+
+.checkbox-label input {
+  display: none;
+}
+
+.checkbox-label span {
+  display: inline-block;
+  padding: 12px 20px;
+  background: var(--bg-alt);
+  border: 2px solid transparent;
+  border-radius: 12px;
+  color: var(--text);
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.checkbox-label:hover span {
+  background: rgba(45,122,95,0.15);
+  transform: translateY(-2px);
+}
+
+.checkbox-label input:checked + span {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+  color: white;
+  border-color: var(--primary);
+  box-shadow: var(--shadow-md);
+}
+
+/* SHOP GRID */
+.subject-section {
+  margin-bottom: 40px;
+}
+
+.subject-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.subject-header h3 {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--primary-dark);
+  font-family: 'Quicksand', sans-serif;
+}
+
+.subject-icon {
+  width: 44px;
+  height: 44px;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  box-shadow: var(--shadow-sm);
+}
+
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 16px;
+}
+
+.product-card {
+  background: var(--white);
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.3s ease;
+  border: 1px solid rgba(45,122,95,0.08);
+  cursor: pointer;
+}
+
+.product-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.product-image {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 12px;
+  object-fit: cover;
+  margin-bottom: 12px;
+  background: var(--bg-alt);
+}
+
+.product-card h4 {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 8px;
+  line-height: 1.4;
+  min-height: 42px;
+}
+
+.product-price {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 12px;
+}
+
+/* HUB GRID */
+.hub-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.hub-card {
+  background: var(--white);
+  border-radius: 18px;
+  padding: 24px 20px;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.3s ease;
+  border: 1px solid rgba(45,122,95,0.08);
+  cursor: pointer;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.hub-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.hub-icon {
+  width: 56px;
+  height: 56px;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  margin-bottom: 4px;
+  box-shadow: var(--shadow-md);
+}
+
+.hub-card h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+}
+
+.hub-card p {
+  font-size: 13px;
+  color: var(--text-light);
+  margin: 0;
+}
+
+/* BASKET PANEL */
+#basketPanel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: min(400px, 100vw);
+  height: 100vh;
+  background: var(--white);
+  box-shadow: -8px 0 40px rgba(0,0,0,0.15);
+  transform: translateX(100%);
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 500;
+  display: flex;
+  flex-direction: column;
+}
+
+#basketPanel.active {
+  transform: translateX(0);
+}
+
+.basket-header {
+  padding: 24px;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: var(--shadow-md);
+}
+
+.basket-header h3 {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0;
+  color: white;
+}
+
+.close-basket {
+  background: rgba(255,255,255,0.2);
+  border: none;
+  color: white;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.close-basket:hover {
+  background: rgba(255,255,255,0.3);
+}
+
+.basket-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+.basket-empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-light);
+}
+
+.basket-empty-icon {
+  font-size: 64px;
+  margin-bottom: 16px;
+  opacity: 0.3;
+}
+
+.basket-item {
+  display: flex;
+  gap: 16px;
+  padding: 16px;
+  background: var(--bg);
+  border-radius: 14px;
+  margin-bottom: 12px;
+  transition: all 0.3s ease;
+}
+
+.basket-item:hover {
+  background: var(--bg-alt);
+  transform: translateX(-4px);
+}
+
+.basket-item-image {
+  width: 60px;
+  height: 60px;
+  border-radius: 10px;
+  object-fit: cover;
+  background: var(--white);
+}
+
+.basket-item-details {
+  flex: 1;
+}
+
+.basket-item-details h4 {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.basket-item-details p {
+  font-size: 13px;
+  color: var(--text-light);
+  margin: 0;
+}
+
+.basket-item-price {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.basket-item-remove {
+  background: var(--danger);
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.basket-item-remove:hover {
+  background: #dc2626;
+  transform: scale(1.05);
+}
+
+.basket-footer {
+  padding: 20px;
+  background: var(--bg);
+  border-top: 1px solid rgba(45,122,95,0.1);
+}
+
+.basket-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  background: var(--white);
+  border-radius: 14px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow-sm);
+}
+
+.basket-total-label {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.basket-total-amount {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--primary);
+}
+
+/* DASHBOARD */
+.dashboard-grid {
+  display: grid;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.dashboard-card {
+  background: var(--white);
+  padding: 24px;
+  border-radius: 18px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid rgba(45,122,95,0.08);
+}
+
+.dashboard-card h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--primary-dark);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dashboard-card p {
+  color: var(--text-light);
+  margin-bottom: 8px;
+  font-size: 15px;
+}
+
+.dashboard-card strong {
+  color: var(--text);
+}
+
+/* SCREEN HEADERS */
+.screen-header {
+  margin-bottom: 28px;
+  text-align: center;
+}
+
+.screen-header h2 {
+  font-size: 30px;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-family: 'Quicksand', sans-serif;
+  margin-bottom: 8px;
+}
+
+.screen-header p {
+  color: var(--text-light);
+  font-size: 15px;
+}
+
+/* CHECKOUT */
+.checkout-summary {
+  background: var(--bg-alt);
+  padding: 20px;
+  border-radius: 14px;
+  margin-bottom: 24px;
+}
+
+.checkout-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(45,122,95,0.1);
+}
+
+.checkout-item:last-child {
+  border-bottom: none;
+}
+
+.checkout-item-name {
+  font-weight: 600;
+  color: var(--text);
+  font-size: 15px;
+}
+
+.checkout-item-price {
+  font-weight: 700;
+  color: var(--primary);
+  font-size: 15px;
+}
+
+.checkout-total {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 2px solid var(--primary);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.checkout-total-label {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.checkout-total-amount {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--primary);
+}
+
+/* ALERTS */
+.alert {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: var(--white);
+  padding: 16px 24px;
+  border-radius: 14px;
+  box-shadow: var(--shadow-xl);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 1000;
+  animation: slideInRight 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  border-left: 4px solid var(--success);
+  max-width: 320px;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(400px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.alert-icon {
+  font-size: 24px;
+}
+
+.alert-content {
+  flex: 1;
+}
+
+.alert-title {
+  font-weight: 700;
+  color: var(--text);
+  font-size: 15px;
+  margin-bottom: 2px;
+}
+
+.alert-message {
+  font-size: 13px;
+  color: var(--text-light);
+}
+
+/* RESPONSIVE */
+@media (max-width: 640px) {
+  .hub-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .product-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .screen {
+    padding: 20px 16px 100px;
+  }
+  
+  .card {
+    padding: 20px;
+  }
+}
+
+/* EMOJIS AS ICONS */
+.emoji {
+  font-style: normal;
+}
+</style>
+</head>
+<body>
+
+<!-- SPLASH SCREEN -->
+<div id="splash">
+  <div class="splash-logo">🧸</div>
+  <h1>Curiosity Cabin</h1>
+  <p>Learning through play, Irish & family owned</p>
+  <div class="loading-dots">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<!-- NAVIGATION -->
+<div class="navbar">
+  <div class="nav-item" onclick="goTo('hubScreen')">
+    <span class="nav-icon">🏠</span>
+    <span>Home</span>
+  </div>
+  <div class="nav-item" onclick="goTo('shopScreen'); loadShop()">
+    <span class="nav-icon">🛍️</span>
+    <span>Shop</span>
+  </div>
+  <div class="nav-item" onclick="goTo('dashboardScreen')">
+    <span class="nav-icon">📊</span>
+    <span>Dashboard</span>
+  </div>
+  <div class="nav-item" onclick="goTo('aboutScreen')">
+    <span class="nav-icon">ℹ️</span>
+    <span>About</span>
+  </div>
+  <div class="nav-item" onclick="toggleBasket()">
+    <span class="nav-icon">🛒</span>
+    <span>Basket</span>
+    <span class="badge" id="cartCount">0</span>
+  </div>
+</div>
+
+<!-- BASKET PANEL -->
+<div id="basketPanel">
+  <div class="basket-header">
+    <h3>Your Basket</h3>
+    <button class="close-basket" onclick="toggleBasket()">✕</button>
+  </div>
+  <div class="basket-content" id="basketContent">
+    <div class="basket-empty">
+      <div class="basket-empty-icon">🛒</div>
+      <p><strong>Your basket is empty</strong></p>
+      <p>Add some amazing educational toys!</p>
+    </div>
+  </div>
+  <div class="basket-footer" id="basketFooter" style="display:none;">
+    <div class="basket-total">
+      <span class="basket-total-label">Total</span>
+      <span class="basket-total-amount" id="basketTotalAmount">€0.00</span>
+    </div>
+    <button class="btn btn-primary" onclick="goTo('checkoutScreen'); toggleBasket()">
+      Proceed to Checkout
+    </button>
+  </div>
+</div>
+
+<!-- LOGIN SCREEN -->
+<div class="screen active" id="loginScreen">
+  <div class="screen-header">
+    <h2>Welcome! 👋</h2>
+    <p>Let's set up your family account</p>
+  </div>
+  
+  <div class="card">
+    <h3>Parent Details</h3>
+    <div class="form-group">
+      <label class="form-label">Email Address</label>
+      <input type="email" id="parentEmail" placeholder="your@email.com">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Full Name</label>
+      <input id="parentName" placeholder="John Smith">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Phone Number</label>
+      <input id="parentPhone" placeholder="+353 21 123 4567">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Address</label>
+      <input id="parentAddress" placeholder="123 Main Street">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Town/City</label>
+      <input id="parentCity" placeholder="Cork">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Eircode</label>
+      <input id="parentEircode" placeholder="P12 AB34">
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Child Details</h3>
+    <div class="form-group">
+      <label class="form-label">Child's Name</label>
+      <input id="childName" placeholder="Emma">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Age</label>
+      <select id="childAge">
+        <option disabled selected>Select age</option>
+        <option>5</option><option>6</option><option>7</option><option>8</option>
+        <option>9</option><option>10</option><option>11</option><option>12</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Class</label>
+      <select id="childClass">
+        <option disabled selected>Select class</option>
+        <option>Junior Infants</option><option>Senior Infants</option>
+        <option>1st Class</option><option>2nd Class</option>
+        <option>3rd Class</option><option>4th Class</option>
+        <option>5th Class</option><option>6th Class</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Subjects Your Child Loves</label>
+      <div class="checkbox-group" id="childLikes">
+        <label class="checkbox-label">
+          <input type="checkbox" value="Maths">
+          <span>📐 Maths</span>
+        </label>
+        <label class="checkbox-label">
+          <input type="checkbox" value="Science">
+          <span>🔬 Science</span>
+        </label>
+        <label class="checkbox-label">
+          <input type="checkbox" value="English">
+          <span>📚 English</span>
+        </label>
+        <label class="checkbox-label">
+          <input type="checkbox" value="Coding">
+          <span>💻 Coding</span>
+        </label>
+        <label class="checkbox-label">
+          <input type="checkbox" value="Art">
+          <span>🎨 Art</span>
+        </label>
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="saveChildInfo()">Continue to Family Hub</button>
+  </div>
+</div>
+
+<!-- HUB SCREEN -->
+<div class="screen" id="hubScreen">
+  <div class="screen-header">
+    <h2>Family Hub</h2>
+    <p>Everything you need in one place</p>
+  </div>
+  
+  <div class="hub-grid">
+    <div class="hub-card" onclick="goTo('shopScreen'); loadShop()">
+      <div class="hub-icon">🛍️</div>
+      <h3>Shop Toys</h3>
+      <p>Personalized for your child</p>
+    </div>
+    <div class="hub-card" onclick="goTo('supportScreen')">
+      <div class="hub-icon">💬</div>
+      <h3>Support</h3>
+      <p>We're here to help</p>
+    </div>
+    <div class="hub-card" onclick="showComingSoon()">
+      <div class="hub-icon">📅</div>
+      <h3>Consultations</h3>
+      <p>Book expert advice</p>
+    </div>
+    <div class="hub-card" onclick="goTo('aboutScreen')">
+      <div class="hub-icon">ℹ️</div>
+      <h3>Our Story</h3>
+      <p>About Curiosity Cabin</p>
+    </div>
+    <div class="hub-card" onclick="showComingSoon()">
+      <div class="hub-icon">🎥</div>
+      <h3>Video Guides</h3>
+      <p>See toys in action</p>
+    </div>
+    <div class="hub-card" onclick="goTo('dashboardScreen')">
+      <div class="hub-icon">📊</div>
+      <h3>Dashboard</h3>
+      <p>Track your family</p>
+    </div>
+  </div>
+</div>
+
+<!-- SHOP SCREEN -->
+<div class="screen" id="shopScreen">
+  <div class="screen-header">
+    <h2>Educational Toys</h2>
+    <p>Curated just for your child</p>
+  </div>
+  <div id="shopItems"></div>
+  <button class="btn btn-secondary" onclick="goTo('hubScreen')">← Back to Hub</button>
+</div>
+
+<!-- CHECKOUT SCREEN -->
+<div class="screen" id="checkoutScreen">
+  <div class="screen-header">
+    <h2>Checkout</h2>
+    <p>Almost there!</p>
+  </div>
+  
+  <div class="card">
+    <h3>Order Summary</h3>
+    <div class="checkout-summary" id="checkoutSummary"></div>
+  </div>
+
+  <div class="card">
+    <h3>Payment Details</h3>
+    <p style="color: var(--text-light); font-size: 14px; margin-bottom: 20px;">This is a demo - no real payment will be processed</p>
+    <div class="form-group">
+      <label class="form-label">Cardholder Name</label>
+      <input id="cardName" placeholder="John Smith">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Card Number</label>
+      <input id="cardNumber" placeholder="1234 5678 9012 3456" maxlength="19">
+    </div>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+      <div class="form-group">
+        <label class="form-label">Expiry Date</label>
+        <input id="cardExpiry" placeholder="MM/YY" maxlength="5">
+      </div>
+      <div class="form-group">
+        <label class="form-label">CVC</label>
+        <input id="cardCVC" placeholder="123" maxlength="4">
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="completeOrder()">Complete Order 🎉</button>
+  </div>
+</div>
+
+<!-- SUPPORT SCREEN -->
+<div class="screen" id="supportScreen">
+  <div class="screen-header">
+    <h2>Customer Service</h2>
+    <p>We're happy to help!</p>
+  </div>
+  
+  <div class="card">
+    <h3>📞 Phone</h3>
+    <p style="font-size: 18px; font-weight: 600; color: var(--primary);">+353 21 555 9021</p>
+  </div>
+
+  <div class="card">
+    <h3>📍 Visit Us</h3>
+    <p><strong>Main Street</strong><br>Kinsale, Co. Cork<br>Ireland</p>
+  </div>
+
+  <div class="card">
+    <h3>✉️ Email</h3>
+    <p style="font-size: 16px; font-weight: 600; color: var(--primary);">support@curiositycabin.ie</p>
+  </div>
+
+  <div class="card">
+    <h3>🕐 Opening Hours</h3>
+    <p><strong>Mon - Fri:</strong> 9:00 AM - 6:00 PM<br>
+    <strong>Saturday:</strong> 10:00 AM - 5:00 PM<br>
+    <strong>Sunday:</strong> Closed</p>
+  </div>
+
+  <button class="btn btn-secondary" onclick="goTo('hubScreen')">← Back to Hub</button>
+</div>
+
+<!-- ABOUT SCREEN -->
+<div class="screen" id="aboutScreen">
+  <div class="screen-header">
+    <h2>Our Story</h2>
+    <p>Passionate about playful learning</p>
+  </div>
+  
+  <div class="card">
+    <h3>🏠 Who We Are</h3>
+    <p>Curiosity Cabin is an independent, Irish-owned boutique retailer based in the beautiful town of Kinsale, County Cork. Founded in 2022, we're a family-operated business dedicated to providing exceptional educational toys.</p>
+  </div>
+
+  <div class="card">
+    <h3>🎯 Our Mission</h3>
+    <p>We believe in purposeful play. Every toy we stock is carefully selected to prioritise learning, sustainability, and inclusivity. We're not just selling toys – we're fostering curiosity and supporting development.</p>
+  </div>
+
+  <div class="card">
+    <h3>💚 Our Values</h3>
+    <p><strong>🌱 Sustainability:</strong> Eco-friendly materials and ethical production<br><br>
+    <strong>🎓 Learning:</strong> Evidence-based educational value<br><br>
+    <strong>🤝 Inclusivity:</strong> Toys for every child<br><br>
+    <strong>👨‍👩‍👧 Family:</strong> Personalized expert advice</p>
+  </div>
+
+  <div class="card">
+    <h3>🌟 Why Choose Us</h3>
+    <p>Unlike big retailers, we take the time to understand your child's unique interests and learning style. Our personalized recommendations ensure you find toys that truly make a difference in your child's development.</p>
+  </div>
+
+  <button class="btn btn-secondary" onclick="goTo('hubScreen')">← Back to Hub</button>
+</div>
+
+<!-- DASHBOARD SCREEN -->
+<div class="screen" id="dashboardScreen">
+  <div class="screen-header">
+    <h2>Dashboard</h2>
+    <p>Your family overview</p>
+  </div>
+  <div class="dashboard-grid" id="dashboardContent"></div>
+  <button class="btn btn-secondary" onclick="goTo('hubScreen')">← Back to Hub</button>
+</div>
+
+<script>
+// Splash screen
+setTimeout(() => {
+  document.getElementById('splash').classList.add('fade-out');
+  setTimeout(() => {
+    document.getElementById('splash').style.display = 'none';
+  }, 600);
+}, 2000);
+
+// Navigation
+function goTo(screenId) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(screenId).classList.add('active');
+  
+  // Update nav active state
+  document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+  
+  // Scroll to top
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Subject icons
+const subjectIcons = {
+  'Maths': '📐',
+  'Science': '🔬',
+  'English': '📚',
+  'Coding': '💻',
+  'Art': '🎨'
+};
+
+// Toy database
+const subjects = {
+  Maths: [
+    {name: "Magna Tiles Set", price: 29.99, img: "https://images.unsplash.com/photo-1576249161200-9df09bfffea0?w=400"},
+    {name: "Math Puzzle Board", price: 12.99, img: "https://images.unsplash.com/photo-1523995471876-b3001b67f741?w=400"},
+    {name: "Number Line Game", price: 10.50, img: "https://images.unsplash.com/photo-1603993097397-89e4b8f9fac0?w=400"},
+    {name: "Abacus Trainer", price: 15.00, img: "https://images.unsplash.com/photo-1585155772095-9927d0ffea8b?w=400"},
+    {name: "Fraction Kit", price: 13.75, img: "https://images.unsplash.com/photo-1613473571143-35138c4e9115?w=400"}
+  ],
+  Science: [
+    {name: "Space Discovery Set", price: 24.99, img: "https://images.unsplash.com/photo-1597699400653-419dffe50a61?w=400"},
+    {name: "Magnet Explorer", price: 11.50, img: "https://images.unsplash.com/photo-1581091012184-5c7a46b9db7b?w=400"},
+    {name: "Crystal Growing Set", price: 12.00, img: "https://images.unsplash.com/photo-1603791440384-56cd371ee9a7?w=400"},
+    {name: "Planetarium Kit", price: 19.99, img: "https://images.unsplash.com/photo-1531092697375-ea2fb2a1b9eb?w=400"},
+    {name: "Chem Lab Starter", price: 29.50, img: "https://images.unsplash.com/photo-1550457728-7b8c1bb76b93?w=400"}
+  ],
+  English: [
+    {name: "Story Cubes", price: 12.50, img: "https://images.unsplash.com/photo-1564767609342-620cb19b2357?w=400"},
+    {name: "Phonics Cards", price: 9.50, img: "https://images.unsplash.com/photo-1581091012184-5c7a46b9db7b?w=400"},
+    {name: "Reading Board Game", price: 14.00, img: "https://images.unsplash.com/photo-1574169208507-843761648d1e?w=400"},
+    {name: "Spelling Game", price: 10.99, img: "https://images.unsplash.com/photo-1606761568499-6d2451b23c66?w=400"}
+  ],
+  Coding: [
+    {name: "Botley Coding Robot", price: 39.99, img: "https://images.unsplash.com/photo-1558655146-364ad6a076bc?w=400"},
+    {name: "Coding Blocks Set", price: 19.99, img: "https://images.unsplash.com/photo-1602524207802-0ba7a32f24ba?w=400"},
+    {name: "Logic Maze", price: 16.25, img: "https://images.unsplash.com/photo-1553456558-aff63285bdd0?w=400"},
+    {name: "Circuit Kit", price: 18.00, img: "https://images.unsplash.com/photo-1581093588401-fb5ff8e5972a?w=400"}
+  ],
+  Art: [
+    {name: "Creative Craft Box", price: 9.99, img: "https://images.unsplash.com/photo-1582719478276-0c69c0f76b28?w=400"},
+    {name: "Painting Set", price: 11.50, img: "https://images.unsplash.com/photo-1613488095273-bd4d51f2548f?w=400"},
+    {name: "Clay Modelling", price: 10.25, img: "https://images.unsplash.com/photo-1581804928341-0dc8afdcd4e4?w=400"},
+    {name: "Origami Set", price: 8.50, img: "https://images.unsplash.com/photo-1585079541213-d051ddfb775e?w=400"}
+  ]
+};
+
+// Form validation
+function validateEmail(email) { return /\S+@\S+\.\S+/.test(email); }
+function validatePhone(phone) { return /^\+?353\d{9}$/.test(phone.replace(/\s/g, '')); }
+function validateCardNumber(num) { return /^\d{16}$/.test(num.replace(/\s/g, '')); }
+function validateExpiry(exp) { return /^(0[1-9]|1[0-2])\/\d{2}$/.test(exp); }
+function validateCVC(cvc) { return /^\d{3,4}$/.test(cvc); }
+
+// User data
+let childLikes = [];
+let userData = {};
+
+// Save child info
+function saveChildInfo() {
+  const email = document.getElementById('parentEmail').value.trim();
+  const parentName = document.getElementById('parentName').value.trim();
+  const phone = document.getElementById('parentPhone').value.trim();
+  const address = document.getElementById('parentAddress').value.trim();
+  const city = document.getElementById('parentCity').value.trim();
+  const eircode = document.getElementById('parentEircode').value.trim();
+  const childName = document.getElementById('childName').value.trim();
+  const age = document.getElementById('childAge').value;
+  const cls = document.getElementById('childClass').value;
+  const likes = document.querySelectorAll('#childLikes input:checked');
+
+  if (!email || !parentName || !phone || !address || !city || !eircode) {
+    showAlert('Missing Info', 'Please fill in all parent details', '⚠️');
+    return;
+  }
+  if (!validateEmail(email)) {
+    showAlert('Invalid Email', 'Please enter a valid email address', '⚠️');
+    return;
+  }
+  if (!validatePhone(phone)) {
+    showAlert('Invalid Phone', 'Enter Irish phone number (e.g., +353 21 123 4567)', '⚠️');
+    return;
+  }
+  if (!childName || age === 'Select age' || cls === 'Select class' || likes.length === 0) {
+    showAlert('Missing Info', 'Fill all child details and select at least one subject', '⚠️');
+    return;
+  }
+
+  userData = { email, parentName, phone, address, city, eircode, childName, age, cls };
+  childLikes = Array.from(likes).map(i => i.value);
+  
+  loadDashboard();
+  showAlert('Welcome!', `Account created for ${childName}`, '🎉');
+  goTo('hubScreen');
+  loadShop();
+}
+
+// Load shop
+function loadShop() {
+  const container = document.getElementById('shopItems');
+  container.innerHTML = '';
+  
+  if (childLikes.length === 0) {
+    container.innerHTML = '<div class="card"><p style="text-align:center;color:var(--text-light);">Please complete your profile to see personalized recommendations</p></div>';
+    return;
+  }
+
+  childLikes.forEach(subject => {
+    const toys = subjects[subject];
+    if (!toys) return;
+
+    const section = document.createElement('div');
+    section.className = 'subject-section';
+    
+    const header = document.createElement('div');
+    header.className = 'subject-header';
+    header.innerHTML = `
+      <div class="subject-icon">${subjectIcons[subject]}</div>
+      <h3>${subject}</h3>
+    `;
+    section.appendChild(header);
+
+    const grid = document.createElement('div');
+    grid.className = 'product-grid';
+
+    toys.forEach(toy => {
+      const card = document.createElement('div');
+      card.className = 'product-card';
+      card.innerHTML = `
+        <img src="${toy.img}" alt="${toy.name}" class="product-image" onerror="this.src='https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=400'">
+        <h4>${toy.name}</h4>
+        <div class="product-price">€${toy.price.toFixed(2)}</div>
+        <button class="btn btn-primary btn-small" onclick='addToCart(${JSON.stringify(toy)}, "${subject}")'>
+          Add to Basket
+        </button>
+      `;
+      grid.appendChild(card);
+    });
+
+    section.appendChild(grid);
+    container.appendChild(section);
+  });
+}
+
+// Cart management
+let cart = [];
+
+function addToCart(toy, subject) {
+  cart.push({ ...toy, subject });
+  updateCartCount();
+  showAlert('Added!', `${toy.name} added to basket`, '🛒');
+  updateBasket();
+}
+
+function updateCartCount() {
+  document.getElementById('cartCount').textContent = cart.length;
+}
+
+function toggleBasket() {
+  document.getElementById('basketPanel').classList.toggle('active');
+  updateBasket();
+}
+
+function updateBasket() {
+  const content = document.getElementById('basketContent');
+  const footer = document.getElementById('basketFooter');
+  
+  if (cart.length === 0) {
+    content.innerHTML = `
+      <div class="basket-empty">
+        <div class="basket-empty-icon">🛒</div>
+        <p><strong>Your basket is empty</strong></p>
+        <p>Add some amazing educational toys!</p>
+      </div>
+    `;
+    footer.style.display = 'none';
+    return;
+  }
+
+  let total = 0;
+  let html = '';
+
+  cart.forEach((item, index) => {
+    total += item.price;
+    html += `
+      <div class="basket-item">
+        <img src="${item.img}" alt="${item.name}" class="basket-item-image" onerror="this.src='https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=400'">
+        <div class="basket-item-details">
+          <h4>${item.name}</h4>
+          <p>${subjectIcons[item.subject]} ${item.subject}</p>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
+          <div class="basket-item-price">€${item.price.toFixed(2)}</div>
+          <button class="basket-item-remove" onclick="removeFromCart(${index})">Remove</button>
+        </div>
+      </div>
+    `;
+  });
+
+  content.innerHTML = html;
+  document.getElementById('basketTotalAmount').textContent = `€${total.toFixed(2)}`;
+  footer.style.display = 'block';
+  
+  updateCheckoutSummary();
+}
+
+function removeFromCart(index) {
+  const item = cart[index];
+  cart.splice(index, 1);
+  updateCartCount();
+  updateBasket();
+  showAlert('Removed', `${item.name} removed from basket`, '🗑️');
+}
+
+// Checkout
+function updateCheckoutSummary() {
+  const summary = document.getElementById('checkoutSummary');
+  if (!summary) return;
+  
+  let total = 0;
+  let html = '';
+  
+  cart.forEach(item => {
+    total += item.price;
+    html += `
+      <div class="checkout-item">
+        <span class="checkout-item-name">${item.name}</span>
+        <span class="checkout-item-price">€${item.price.toFixed(2)}</span>
+      </div>
+    `;
+  });
+  
+  html += `
+    <div class="checkout-total">
+      <span class="checkout-total-label">Total</span>
+      <span class="checkout-total-amount">€${total.toFixed(2)}</span>
+    </div>
+  `;
+  
+  summary.innerHTML = html;
+}
+
+// Format card number input
+document.addEventListener('DOMContentLoaded', () => {
+  const cardNumberInput = document.getElementById('cardNumber');
+  if (cardNumberInput) {
+    cardNumberInput.addEventListener('input', (e) => {
+      let value = e.target.value.replace(/\s/g, '');
+      let formattedValue = value.match(/.{1,4}/g)?.join(' ') || value;
+      e.target.value = formattedValue;
+    });
+  }
+
+  const expiryInput = document.getElementById('cardExpiry');
+  if (expiryInput) {
+    expiryInput.addEventListener('input', (e) => {
+      let value = e.target.value.replace(/\D/g, '');
+      if (value.length >= 2) {
+        value = value.slice(0, 2) + '/' + value.slice(2, 4);
+      }
+      e.target.value = value;
+    });
+  }
+});
+
+function completeOrder() {
+  const name = document.getElementById('cardName').value.trim();
+  const number = document.getElementById('cardNumber').value.trim();
+  const expiry = document.getElementById('cardExpiry').value.trim();
+  const cvc = document.getElementById('cardCVC').value.trim();
+
+  if (!name) {
+    showAlert('Missing Info', 'Please enter cardholder name', '⚠️');
+    return;
+  }
+  if (!validateCardNumber(number)) {
+    showAlert('Invalid Card', 'Please enter a valid 16-digit card number', '⚠️');
+    return;
+  }
+  if (!validateExpiry(expiry)) {
+    showAlert('Invalid Expiry', 'Please enter expiry in MM/YY format', '⚠️');
+    return;
+  }
+  if (!validateCVC(cvc)) {
+    showAlert('Invalid CVC', 'Please enter a valid 3-4 digit CVC', '⚠️');
+    return;
+  }
+
+  showAlert('Success!', 'Order completed! Thank you for shopping with us 🎉', '✅');
+  
+  setTimeout(() => {
+    cart = [];
+    updateCartCount();
+    updateBasket();
+    goTo('hubScreen');
+    
+    // Clear form
+    document.getElementById('cardName').value = '';
+    document.getElementById('cardNumber').value = '';
+    document.getElementById('cardExpiry').value = '';
+    document.getElementById('cardCVC').value = '';
+  }, 2000);
+}
+
+// Dashboard
+function loadDashboard() {
+  const container = document.getElementById('dashboardContent');
+  
+  const html = `
+    <div class="dashboard-card">
+      <h3>👨‍👩‍👧 Family Information</h3>
+      <p><strong>Parent:</strong> ${userData.parentName}</p>
+      <p><strong>Email:</strong> ${userData.email}</p>
+      <p><strong>Phone:</strong> ${userData.phone}</p>
+      <p><strong>Address:</strong> ${userData.address}, ${userData.city} ${userData.eircode}</p>
+    </div>
+    
+    <div class="dashboard-card">
+      <h3>👦 Child Profile</h3>
+      <p><strong>Name:</strong> ${userData.childName}</p>
+      <p><strong>Age:</strong> ${userData.age} years old</p>
+      <p><strong>Class:</strong> ${userData.cls}</p>
+    </div>
+    
+    <div class="dashboard-card">
+      <h3>🎯 Interests</h3>
+      <div class="checkbox-group" style="margin-top: 12px;">
+        ${childLikes.map(subject => `
+          <label class="checkbox-label">
+            <input type="checkbox" checked disabled>
+            <span>${subjectIcons[subject]} ${subject}</span>
+          </label>
+        `).join('')}
+      </div>
+    </div>
+    
+    <div class="dashboard-card">
+      <h3>📊 Activity Summary</h3>
+      <p><strong>Items in basket:</strong> ${cart.length}</p>
+      <p><strong>Personalized categories:</strong> ${childLikes.length}</p>
+      <p><strong>Member since:</strong> ${new Date().toLocaleDateString('en-IE', { year: 'numeric', month: 'long' })}</p>
+    </div>
+  `;
+  
+  container.innerHTML = html;
+}
+
+// Alert system
+function showAlert(title, message, icon) {
+  const existing = document.querySelector('.alert');
+  if (existing) existing.remove();
+  
+  const alert = document.createElement('div');
+  alert.className = 'alert';
+  alert.innerHTML = `
+    <div class="alert-icon">${icon}</div>
+    <div class="alert-content">
+      <div class="alert-title">${title}</div>
+      <div class="alert-message">${message}</div>
+    </div>
+  `;
+  
+  document.body.appendChild(alert);
+  
+  setTimeout(() => {
+    alert.style.animation = 'slideInRight 0.4s cubic-bezier(0.4, 0, 0.2, 1) reverse';
+    setTimeout(() => alert.remove(), 400);
+  }, 3000);
+}
+
+// Coming soon
+function showComingSoon() {
+  showAlert('Coming Soon', 'This feature will be available soon!', '🚀');
+}
+</script>
+
+</body>
+</html>
